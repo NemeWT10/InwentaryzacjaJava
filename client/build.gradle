@@ -1,0 +1,25 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = '25.0.1'
+    modules = ['javafx.controls']
+}
+
+application {
+    mainModule = 'pl.pollub.inwentaryzacja.client'
+    mainClass = 'pl.pollub.inwentaryzacja.client.ClientApplication'
+    applicationDefaultJvmArgs = ['--enable-native-access=javafx.graphics']
+}
