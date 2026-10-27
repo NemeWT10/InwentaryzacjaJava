@@ -9,7 +9,7 @@ Architektura klient-serwer: klient JavaFX komunikuje się z backendem Spring Boo
 
 | Folder | Zawartość |
 |---|---|
-| `client/` | aplikacja kliencka JavaFX (planowana) |
+| `client/` | aplikacja kliencka JavaFX |
 | `server/` | backend Spring Boot + PostgreSQL (planowany) |
 
 ## Autorzy
@@ -21,3 +21,7 @@ Architektura klient-serwer: klient JavaFX komunikuje się z backendem Spring Boo
 
 - JDK 25
 - Gradle — przez dołączony wrapper (`gradlew` / `gradlew.bat`), bez osobnej instalacji
+
+## Uruchomienie
+
+Klient: `gradlew :client:run` (w IntelliJ: panel Gradle → `client` → Tasks → application → run).
