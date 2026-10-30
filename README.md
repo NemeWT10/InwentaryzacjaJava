@@ -11,6 +11,7 @@ Architektura klient-serwer: klient JavaFX komunikuje się z backendem Spring Boo
 |---|---|
 | `client/` | aplikacja kliencka JavaFX |
 | `server/` | backend Spring Boot + PostgreSQL (planowany) |
+| `docs/` | model danych i lista endpointów (`model-i-api.md`) |
 
 ## Autorzy
 
