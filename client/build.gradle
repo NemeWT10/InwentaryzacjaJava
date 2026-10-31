@@ -13,6 +13,15 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    implementation 'tools.jackson.core:jackson-databind:3.1.5'
+    implementation 'tools.jackson.dataformat:jackson-dataformat-xml:3.1.5'
+
+    testImplementation platform('org.junit:junit-bom:6.0.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
 javafx {
     version = '25.0.1'
     modules = ['javafx.controls']
@@ -22,4 +31,8 @@ application {
     mainModule = 'pl.pollub.inwentaryzacja.client'
     mainClass = 'pl.pollub.inwentaryzacja.client.ClientApplication'
     applicationDefaultJvmArgs = ['--enable-native-access=javafx.graphics']
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
