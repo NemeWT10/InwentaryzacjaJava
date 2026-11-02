@@ -23,3 +23,10 @@
 | `GET /api/fault-reports`, `PUT /api/fault-reports/{id}`                    | `LECTURER` |
 | `GET/POST/PUT /api/users`                                                  | `ADMIN` |
 | `GET /api/inventory/export?format=json\|xml`, `POST /api/inventory/import` | `LECTURER` |
+
+## Logowanie
+
+- żądanie: `{"login": "...", "password": "..."}`
+- odpowiedź `200`: `{"token": "...", "role": "LECTURER"}`, błędne dane: `401`
+- kolejne żądania: nagłówek `Authorization: Bearer <token>`
+- serwer: `http://localhost:8080`
