@@ -1,3 +1,4 @@
 rootProject.name = 'inwentaryzacja'
 
 include 'client'
+include 'server'
