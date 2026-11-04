@@ -10,7 +10,7 @@ Architektura klient-serwer: klient JavaFX komunikuje się z backendem Spring Boo
 | Folder | Zawartość |
 |---|---|
 | `client/` | aplikacja kliencka JavaFX |
-| `server/` | backend Spring Boot + PostgreSQL (planowany) |
+| `server/` | backend Spring Boot + MySQL |
 | `docs/` | model danych i lista endpointów (`model-i-api.md`) |
 
 ## Autorzy
@@ -22,7 +22,12 @@ Architektura klient-serwer: klient JavaFX komunikuje się z backendem Spring Boo
 
 - JDK 25
 - Gradle — przez dołączony wrapper (`gradlew` / `gradlew.bat`), bez osobnej instalacji
+- Docker z Docker Compose (baza MySQL)
 
 ## Uruchomienie
 
 Klient: `gradlew :client:run` (w IntelliJ: panel Gradle → `client` → Tasks → application → run).
+
+Baza danych (przed serwerem): `docker compose up -d`, stan: `docker ps`.
+
+Serwer: `gradlew :server:bootRun`.
