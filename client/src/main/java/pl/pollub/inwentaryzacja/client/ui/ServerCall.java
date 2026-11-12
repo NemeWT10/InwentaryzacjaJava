@@ -26,4 +26,11 @@ public final class ServerCall {
         thread.setDaemon(true);
         thread.start();
     }
+
+    public static void run(Runnable request, Runnable onDone, Label errorLabel) {
+        run(() -> {
+            request.run();
+            return null;
+        }, result -> onDone.run(), errorLabel);
+    }
 }

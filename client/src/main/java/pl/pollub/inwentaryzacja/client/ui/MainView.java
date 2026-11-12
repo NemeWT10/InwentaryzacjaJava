@@ -1,7 +1,10 @@
 package pl.pollub.inwentaryzacja.client.ui;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -40,8 +43,18 @@ public class MainView extends BorderPane {
                 .addListener((observable, oldRoom, newRoom) -> showWorkstations(newRoom));
         workstationList.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldWorkstation, newWorkstation) -> showEquipment(newWorkstation));
-        HBox lists = new HBox(SPACING, column("Sale", roomList),
-                column("Stanowiska", workstationList), column("Sprzęt", equipmentList));
+        VBox workstationColumn = column("Stanowiska", workstationList);
+        VBox equipmentColumn = column("Sprzęt", equipmentList);
+        if (role == Role.LECTURER) {
+            workstationColumn.getChildren().add(new HBox(SPACING,
+                    button("Dodaj", roomList, this::addWorkstation),
+                    button("Edytuj", workstationList, this::editWorkstation)));
+            equipmentColumn.getChildren().add(new HBox(SPACING,
+                    button("Dodaj", workstationList, this::addEquipment),
+                    button("Edytuj", equipmentList, this::editEquipment),
+                    button("Usuń", equipmentList, this::deleteEquipment)));
+        }
+        HBox lists = new HBox(SPACING, column("Sale", roomList), workstationColumn, equipmentColumn);
 
         setPadding(new Insets(SPACING));
         setTop(topBar);
@@ -81,7 +94,71 @@ public class MainView extends BorderPane {
                 equipment -> equipmentList.getItems().setAll(equipment), errorLabel);
     }
 
+    private void refreshEquipment() {
+        Workstation workstation = workstationList.getSelectionModel().getSelectedItem();
+        if (workstation == null) {
+            searchEquipment();
+        } else {
+            showEquipment(workstation);
+        }
+    }
+
+    private void addWorkstation() {
+        Room room = roomList.getSelectionModel().getSelectedItem();
+        new WorkstationDialog("Nowe stanowisko", new Workstation(null, room.id(), "", ""))
+                .showAndWait()
+                .ifPresent(workstation -> ServerCall.run(
+                        () -> apiClient.post("/api/workstations", workstation),
+                        () -> showWorkstations(room), errorLabel));
+    }
+
+    private void editWorkstation() {
+        Room room = roomList.getSelectionModel().getSelectedItem();
+        new WorkstationDialog("Edycja stanowiska", workstationList.getSelectionModel().getSelectedItem())
+                .showAndWait()
+                .ifPresent(workstation -> ServerCall.run(
+                        () -> apiClient.put("/api/workstations/" + workstation.id(), workstation),
+                        () -> showWorkstations(room), errorLabel));
+    }
+
+    private void addEquipment() {
+        Workstation workstation = workstationList.getSelectionModel().getSelectedItem();
+        new AddEquipmentDialog(workstation.id())
+                .showAndWait()
+                .ifPresent(equipment -> ServerCall.run(
+                        () -> apiClient.post("/api/equipment", equipment),
+                        () -> showEquipment(workstation), errorLabel));
+    }
+
+    private void editEquipment() {
+        new EditEquipmentDialog(equipmentList.getSelectionModel().getSelectedItem())
+                .showAndWait()
+                .ifPresent(equipment -> ServerCall.run(
+                        () -> apiClient.put("/api/equipment/" + equipment.id(), equipment),
+                        this::refreshEquipment, errorLabel));
+    }
+
+    private void deleteEquipment() {
+        Equipment equipment = equipmentList.getSelectionModel().getSelectedItem();
+        ButtonType deleteButton = new ButtonType("Usuń", ButtonBar.ButtonData.OK_DONE);
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "Usunąć „" + equipment.name() + "”?",
+                deleteButton, new ButtonType("Anuluj", ButtonBar.ButtonData.CANCEL_CLOSE));
+        confirmation.setTitle("Usuwanie sprzętu");
+        confirmation.setHeaderText(null);
+        if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == deleteButton) {
+            ServerCall.run(() -> apiClient.delete("/api/equipment/" + equipment.id()),
+                    this::refreshEquipment, errorLabel);
+        }
+    }
+
     private static VBox column(String title, ListView<?> list) {
         return new VBox(SPACING, new Label(title), list);
+    }
+
+    private static Button button(String text, ListView<?> requiredSelection, Runnable action) {
+        Button button = new Button(text);
+        button.setOnAction(event -> action.run());
+        button.disableProperty().bind(requiredSelection.getSelectionModel().selectedItemProperty().isNull());
+        return button;
     }
 }

@@ -41,20 +41,46 @@ public class ApiClient {
     }
 
     public <T> T get(String path, Class<T> responseType) {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + path))
-                .header("Authorization", "Bearer " + token)
-                .GET()
-                .build();
-
-        HttpResponse<String> response = send(request);
-        if (response.statusCode() != HTTP_OK) {
-            throw new ApiException("Błąd serwera, kod " + response.statusCode());
-        }
+        HttpResponse<String> response = sendAuthorized(request(path).GET());
         return jsonMapper.readValue(response.body(), responseType);
+    }
+
+    public void post(String path, Object body) {
+        sendAuthorized(request(path).POST(jsonBody(body)));
+    }
+
+    public void put(String path, Object body) {
+        sendAuthorized(request(path).PUT(jsonBody(body)));
+    }
+
+    public void delete(String path) {
+        sendAuthorized(request(path).DELETE());
     }
 
     public String getToken() {
         return token;
+    }
+
+    private HttpRequest.Builder request(String path) {
+        return HttpRequest.newBuilder(URI.create(baseUrl + path))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json");
+    }
+
+    private HttpRequest.BodyPublisher jsonBody(Object body) {
+        return HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(body));
+    }
+
+    private HttpResponse<String> sendAuthorized(HttpRequest.Builder request) {
+        HttpResponse<String> response = send(request.build());
+        if (!isSuccess(response.statusCode())) {
+            throw new ApiException("Błąd serwera, kod: " + response.statusCode());
+        }
+        return response;
+    }
+
+    private static boolean isSuccess(int statusCode) {
+        return statusCode >= 200 && statusCode <= 299;
     }
 
     private HttpResponse<String> send(HttpRequest request) {
