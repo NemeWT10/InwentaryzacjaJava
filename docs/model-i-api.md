@@ -17,7 +17,8 @@
 | `POST /api/auth/login` - token JWT + rola                                  | wszyscy |
 | `GET /api/rooms`, `/api/workstations`, `/api/equipment`                    | wszyscy |
 | `GET /api/equipment?microcontroller=…`                                     | wszyscy |
-| `POST/PUT/DELETE /api/workstations`, `/api/equipment`                      | `LECTURER` |
+| `POST /api/workstations`, `PUT /api/workstations/{id}`                     | `LECTURER` |
+| `POST /api/equipment`, `PUT/DELETE /api/equipment/{id}`                    | `LECTURER` |
 | `POST /api/rooms`                                                          | `ADMIN` |
 | `POST /api/fault-reports`                                                  | `STUDENT` |
 | `GET /api/fault-reports`, `PUT /api/fault-reports/{id}`                    | `LECTURER` |
@@ -56,3 +57,17 @@ ten sam format co w eksporcie. Brak lub zły token: `401`.
 ```
 
 `User` w odpowiedziach bez `passwordHash`.
+
+## Zapis (wykładowca)
+
+| Żądanie | Treść żądania |
+|---|---|
+| `POST /api/workstations` | stanowisko, `id` = `null` |
+| `PUT /api/workstations/{id}` | całe stanowisko |
+| `POST /api/equipment` | sprzęt, `id` = `null` |
+| `PUT /api/equipment/{id}` | cały sprzęt |
+| `DELETE /api/equipment/{id}` | brak |
+
+Treść w tym samym formacie co przy przeglądaniu (relacje jako id). Sukces = dowolny kod `2xx`
+(np. `201` z zapisanym obiektem, `204` po usunięciu) — klient po zapisie pobiera listę od nowa.
+Inna rola niż `LECTURER`: `403`. Stanowisk się nie usuwa.
