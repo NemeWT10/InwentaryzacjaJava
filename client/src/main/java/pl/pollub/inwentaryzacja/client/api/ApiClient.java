@@ -40,6 +40,19 @@ public class ApiClient {
         return loginResponse;
     }
 
+    public <T> T get(String path, Class<T> responseType) {
+        HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + path))
+                .header("Authorization", "Bearer " + token)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = send(request);
+        if (response.statusCode() != HTTP_OK) {
+            throw new ApiException("Błąd serwera, kod " + response.statusCode());
+        }
+        return jsonMapper.readValue(response.body(), responseType);
+    }
+
     public String getToken() {
         return token;
     }

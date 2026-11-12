@@ -8,7 +8,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import pl.pollub.inwentaryzacja.client.api.ApiClient;
-import pl.pollub.inwentaryzacja.client.api.ApiException;
 import pl.pollub.inwentaryzacja.client.api.LoginResponse;
 
 import java.util.function.Consumer;
@@ -43,10 +42,8 @@ public class LoginView extends VBox {
     }
 
     private void logIn() {
-        try {
-            onLoggedIn.accept(apiClient.login(loginField.getText(), passwordField.getText()));
-        } catch (ApiException e) {
-            errorLabel.setText(e.getMessage());
-        }
+        String login = loginField.getText();
+        String password = passwordField.getText();
+        ServerCall.run(() -> apiClient.login(login, password), onLoggedIn, errorLabel);
     }
 }
