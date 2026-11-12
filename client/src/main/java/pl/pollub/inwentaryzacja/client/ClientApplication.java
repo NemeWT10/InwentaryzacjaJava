@@ -2,12 +2,11 @@ package pl.pollub.inwentaryzacja.client;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import pl.pollub.inwentaryzacja.client.api.ApiClient;
 import pl.pollub.inwentaryzacja.client.api.LoginResponse;
 import pl.pollub.inwentaryzacja.client.ui.LoginView;
+import pl.pollub.inwentaryzacja.client.ui.MainView;
 
 public class ClientApplication extends Application {
 
@@ -28,8 +27,7 @@ public class ClientApplication extends Application {
     }
 
     private void showMainView(LoginResponse loginResponse) {
-        // TODO: widoki zależne od roli
-        scene.setRoot(new StackPane(new Label("Zalogowano jako: " + loginResponse.role())));
+        scene.setRoot(new MainView(apiClient, loginResponse.role()));
     }
 
     public static void main(String[] args) {

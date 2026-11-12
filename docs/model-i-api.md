@@ -30,3 +30,29 @@
 - odpowiedź `200`: `{"token": "...", "role": "LECTURER"}`, błędne dane: `401`
 - kolejne żądania: nagłówek `Authorization: Bearer <token>`
 - serwer: `http://localhost:8080`
+
+## Przeglądanie (format JSON)
+
+| Żądanie | Odpowiedź |
+|---|---|
+| `GET /api/rooms` | wszystkie sale |
+| `GET /api/workstations?roomId=1` | stanowiska w sali |
+| `GET /api/equipment?workstationId=1` | sprzęt na stanowisku |
+| `GET /api/equipment?microcontroller=stm32` | sprzęt, którego mikrokontroler zawiera tekst (bez rozróżniania wielkości liter) |
+
+Odpowiedź `200` = tablica JSON. Relacje jako id (`roomId`, `workstationId`), nie zagnieżdżone obiekty —
+ten sam format co w eksporcie. Brak lub zły token: `401`.
+
+```json
+[{"id": 1, "number": "E203", "description": "Pracownia systemów wbudowanych"}]
+```
+
+```json
+[{"id": 1, "roomId": 1, "number": "1", "notes": "Brak zasilacza"}]
+```
+
+```json
+[{"id": 1, "workstationId": 1, "type": "BOARD", "name": "NUCLEO-L476RG", "microcontroller": "STM32L476RG", "status": "WORKING"}]
+```
+
+`User` w odpowiedziach bez `passwordHash`.
