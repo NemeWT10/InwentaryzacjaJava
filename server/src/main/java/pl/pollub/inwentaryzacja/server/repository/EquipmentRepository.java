@@ -10,4 +10,7 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long> {
     List<Equipment> findByWorkstationId(Long workstationId);
 
     List<Equipment> findByMicrocontrollerContainingIgnoreCase(String microcontroller);
+
+    List<Equipment> findByWorkstationIdAndMicrocontrollerContainingIgnoreCase(Long workstationId,
+                                                                              String microcontroller);
 }
