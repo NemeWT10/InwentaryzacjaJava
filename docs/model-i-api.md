@@ -21,7 +21,7 @@
 | `POST /api/equipment`, `PUT/DELETE /api/equipment/{id}`                    | `LECTURER` |
 | `POST /api/rooms`                                                          | `ADMIN` |
 | `POST /api/fault-reports`                                                  | `STUDENT` |
-| `GET /api/fault-reports`, `PUT /api/fault-reports/{id}`                    | `LECTURER` |
+| `GET /api/fault-reports?status=OPEN`, `PUT /api/fault-reports/{id}`        | `LECTURER` |
 | `GET/POST/PUT /api/users`                                                  | `ADMIN` |
 | `GET /api/inventory/export?format=json\|xml`, `POST /api/inventory/import` | `LECTURER` |
 
@@ -71,3 +71,19 @@ ten sam format co w eksporcie. Brak lub zły token: `401`.
 Treść w tym samym formacie co przy przeglądaniu (relacje jako id). Sukces = dowolny kod `2xx`
 (np. `201` z zapisanym obiektem, `204` po usunięciu) — klient po zapisie pobiera listę od nowa.
 Inna rola niż `LECTURER`: `403`. Stanowisk się nie usuwa.
+
+## Zgłoszenia usterek
+
+| Żądanie | Rola | Treść żądania |
+|---|---|---|
+| `POST /api/fault-reports` | `STUDENT` | `{"workstationId": 1, "description": "Nie działa port USB"}` |
+| `GET /api/fault-reports?status=OPEN` | `LECTURER` | brak |
+| `PUT /api/fault-reports/{id}` | `LECTURER` | `{"status": "CLOSED"}` (zamknięcie zgłoszenia, innych zmian nie ma) |
+
+Przy `POST` serwer sam ustawia zgłaszającego (użytkownik z tokenu), `status` = `OPEN` i `createdAt`.
+Odpowiedź `GET` — z numerami sali i stanowiska oraz loginem zgłaszającego (do wyświetlenia na liście):
+
+```json
+[{"id": 1, "workstationId": 1, "roomNumber": "E203", "workstationNumber": "1", "reporterLogin": "student",
+  "description": "Nie działa port USB", "status": "OPEN", "createdAt": "2026-11-12T10:15:00Z"}]
+```

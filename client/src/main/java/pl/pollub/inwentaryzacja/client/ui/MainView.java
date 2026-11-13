@@ -29,7 +29,7 @@ public class MainView extends BorderPane {
     private final ListView<Workstation> workstationList = new ListView<>();
     private final ListView<Equipment> equipmentList = new ListView<>();
     private final TextField searchField = new TextField();
-    private final Label errorLabel = new Label();
+    private final Label messageLabel = new Label();
 
     public MainView(ApiClient apiClient, Role role) {
         this.apiClient = apiClient;
@@ -53,13 +53,19 @@ public class MainView extends BorderPane {
                     button("Dodaj", workstationList, this::addEquipment),
                     button("Edytuj", equipmentList, this::editEquipment),
                     button("Usuń", equipmentList, this::deleteEquipment)));
+            Button faultReportsButton = new Button("Zgłoszenia usterek");
+            faultReportsButton.setOnAction(event -> new FaultReportListDialog(apiClient).showAndWait());
+            topBar.getChildren().add(faultReportsButton);
+        }
+        if (role == Role.STUDENT) {
+            workstationColumn.getChildren().add(button("Zgłoś usterkę", workstationList, this::reportFault));
         }
         HBox lists = new HBox(SPACING, column("Sale", roomList), workstationColumn, equipmentColumn);
 
         setPadding(new Insets(SPACING));
         setTop(topBar);
         setCenter(lists);
-        setBottom(errorLabel);
+        setBottom(messageLabel);
         BorderPane.setMargin(lists, new Insets(SPACING, 0, SPACING, 0));
 
         showRooms();
@@ -67,7 +73,7 @@ public class MainView extends BorderPane {
 
     private void showRooms() {
         ServerCall.run(() -> apiClient.get("/api/rooms", Room[].class),
-                rooms -> roomList.getItems().setAll(rooms), errorLabel);
+                rooms -> roomList.getItems().setAll(rooms), messageLabel);
     }
 
     private void showWorkstations(Room room) {
@@ -76,7 +82,7 @@ public class MainView extends BorderPane {
             return;
         }
         ServerCall.run(() -> apiClient.get("/api/workstations?roomId=" + room.id(), Workstation[].class),
-                workstations -> workstationList.getItems().setAll(workstations), errorLabel);
+                workstations -> workstationList.getItems().setAll(workstations), messageLabel);
     }
 
     private void showEquipment(Workstation workstation) {
@@ -84,14 +90,14 @@ public class MainView extends BorderPane {
             return;
         }
         ServerCall.run(() -> apiClient.get("/api/equipment?workstationId=" + workstation.id(), Equipment[].class),
-                equipment -> equipmentList.getItems().setAll(equipment), errorLabel);
+                equipment -> equipmentList.getItems().setAll(equipment), messageLabel);
     }
 
     private void searchEquipment() {
         workstationList.getSelectionModel().clearSelection();
         String microcontroller = URLEncoder.encode(searchField.getText(), StandardCharsets.UTF_8);
         ServerCall.run(() -> apiClient.get("/api/equipment?microcontroller=" + microcontroller, Equipment[].class),
-                equipment -> equipmentList.getItems().setAll(equipment), errorLabel);
+                equipment -> equipmentList.getItems().setAll(equipment), messageLabel);
     }
 
     private void refreshEquipment() {
@@ -109,7 +115,7 @@ public class MainView extends BorderPane {
                 .showAndWait()
                 .ifPresent(workstation -> ServerCall.run(
                         () -> apiClient.post("/api/workstations", workstation),
-                        () -> showWorkstations(room), errorLabel));
+                        () -> showWorkstations(room), messageLabel));
     }
 
     private void editWorkstation() {
@@ -118,7 +124,7 @@ public class MainView extends BorderPane {
                 .showAndWait()
                 .ifPresent(workstation -> ServerCall.run(
                         () -> apiClient.put("/api/workstations/" + workstation.id(), workstation),
-                        () -> showWorkstations(room), errorLabel));
+                        () -> showWorkstations(room), messageLabel));
     }
 
     private void addEquipment() {
@@ -127,7 +133,7 @@ public class MainView extends BorderPane {
                 .showAndWait()
                 .ifPresent(equipment -> ServerCall.run(
                         () -> apiClient.post("/api/equipment", equipment),
-                        () -> showEquipment(workstation), errorLabel));
+                        () -> showEquipment(workstation), messageLabel));
     }
 
     private void editEquipment() {
@@ -135,7 +141,7 @@ public class MainView extends BorderPane {
                 .showAndWait()
                 .ifPresent(equipment -> ServerCall.run(
                         () -> apiClient.put("/api/equipment/" + equipment.id(), equipment),
-                        this::refreshEquipment, errorLabel));
+                        this::refreshEquipment, messageLabel));
     }
 
     private void deleteEquipment() {
@@ -147,8 +153,16 @@ public class MainView extends BorderPane {
         confirmation.setHeaderText(null);
         if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == deleteButton) {
             ServerCall.run(() -> apiClient.delete("/api/equipment/" + equipment.id()),
-                    this::refreshEquipment, errorLabel);
+                    this::refreshEquipment, messageLabel);
         }
+    }
+
+    private void reportFault() {
+        new ReportFaultDialog(workstationList.getSelectionModel().getSelectedItem())
+                .showAndWait()
+                .ifPresent(report -> ServerCall.run(
+                        () -> apiClient.post("/api/fault-reports", report),
+                        () -> messageLabel.setText("Zgłoszenie wysłane"), messageLabel));
     }
 
     private static VBox column(String title, ListView<?> list) {
