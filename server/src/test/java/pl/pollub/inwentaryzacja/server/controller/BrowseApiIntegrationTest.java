@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pollub.inwentaryzacja.server.model.Equipment;
 import pl.pollub.inwentaryzacja.server.model.EquipmentStatus;
@@ -19,6 +21,7 @@ import pl.pollub.inwentaryzacja.server.repository.RoomRepository;
 import pl.pollub.inwentaryzacja.server.repository.UserRepository;
 import pl.pollub.inwentaryzacja.server.repository.WorkstationRepository;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,7 +66,7 @@ class BrowseApiIntegrationTest {
 
     @Test
     void roomsAreReturnedAsJsonArray() throws Exception {
-        mockMvc.perform(get("/api/rooms"))
+        mockMvc.perform(get("/api/rooms").with(asStudent()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].number").value("E203"))
@@ -72,7 +75,7 @@ class BrowseApiIntegrationTest {
 
     @Test
     void workstationsInRoomContainRoomIdInsteadOfNestedRoom() throws Exception {
-        mockMvc.perform(get("/api/workstations").param("roomId", room.getId().toString()))
+        mockMvc.perform(get("/api/workstations").param("roomId", room.getId().toString()).with(asStudent()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(workstation.getId()))
@@ -83,7 +86,8 @@ class BrowseApiIntegrationTest {
 
     @Test
     void equipmentOnWorkstationContainsWorkstationId() throws Exception {
-        mockMvc.perform(get("/api/equipment").param("workstationId", workstation.getId().toString()))
+        mockMvc.perform(get("/api/equipment").param("workstationId", workstation.getId().toString())
+                        .with(asStudent()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].workstationId").value(workstation.getId()))
@@ -92,7 +96,7 @@ class BrowseApiIntegrationTest {
 
     @Test
     void equipmentSearchByMicrocontrollerIgnoresCase() throws Exception {
-        mockMvc.perform(get("/api/equipment").param("microcontroller", "stm32"))
+        mockMvc.perform(get("/api/equipment").param("microcontroller", "stm32").with(asStudent()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("NUCLEO-L476RG"))
@@ -101,13 +105,16 @@ class BrowseApiIntegrationTest {
     }
 
     @Test
-    void usersAreReturnedWithoutPasswordHash() throws Exception {
-        userRepository.save(new User(null, "student", "$2a$10$tajnyhash", Role.STUDENT));
+    void usersAreReturnedToAdminWithoutPasswordHash() throws Exception {
+        userRepository.save(new User(null, "test-browse", "$2a$10$tajnyhash", Role.STUDENT));
 
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users").with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].login").value("student"))
-                .andExpect(jsonPath("$[0].role").value("STUDENT"))
-                .andExpect(jsonPath("$[0].passwordHash").doesNotExist());
+                .andExpect(jsonPath("$[?(@.login == 'test-browse')].role").value("STUDENT"))
+                .andExpect(jsonPath("$[*].passwordHash").doesNotExist());
+    }
+
+    private static RequestPostProcessor asStudent() {
+        return jwt().authorities(new SimpleGrantedAuthority("ROLE_STUDENT"));
     }
 }

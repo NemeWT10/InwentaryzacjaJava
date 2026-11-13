@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pollub.inwentaryzacja.server.model.Equipment;
 import pl.pollub.inwentaryzacja.server.model.EquipmentStatus;
@@ -19,6 +21,7 @@ import pl.pollub.inwentaryzacja.server.repository.WorkstationRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -59,7 +62,7 @@ class EquipmentApiIntegrationTest {
                  "microcontroller": "STM32L476RG", "status": "WORKING"}
                 """.formatted(workstation.getId());
 
-        mockMvc.perform(post("/api/equipment").contentType(MediaType.APPLICATION_JSON).content(body))
+        mockMvc.perform(post("/api/equipment").contentType(MediaType.APPLICATION_JSON).content(body).with(asLecturer()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.workstationId").value(workstation.getId()))
@@ -74,7 +77,7 @@ class EquipmentApiIntegrationTest {
                 {"workstationId": %d, "type": "CABLE", "name": "", "status": "WORKING"}
                 """.formatted(workstation.getId());
 
-        mockMvc.perform(post("/api/equipment").contentType(MediaType.APPLICATION_JSON).content(body))
+        mockMvc.perform(post("/api/equipment").contentType(MediaType.APPLICATION_JSON).content(body).with(asLecturer()))
                 .andExpect(status().isBadRequest());
 
         assertTrue(equipmentRepository.findAll().isEmpty());
@@ -90,11 +93,12 @@ class EquipmentApiIntegrationTest {
                 """.formatted(board.getId(), workstation.getId());
 
         mockMvc.perform(put("/api/equipment/{id}", board.getId())
-                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                        .contentType(MediaType.APPLICATION_JSON).content(body).with(asLecturer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_REPAIR"));
 
-        mockMvc.perform(get("/api/equipment").param("workstationId", workstation.getId().toString()))
+        mockMvc.perform(get("/api/equipment").param("workstationId", workstation.getId().toString())
+                        .with(asLecturer()))
                 .andExpect(jsonPath("$[0].status").value("IN_REPAIR"));
     }
 
@@ -103,9 +107,13 @@ class EquipmentApiIntegrationTest {
         Equipment cable = equipmentRepository.save(new Equipment(null, workstation, EquipmentType.CABLE,
                 "USB mini-B", null, EquipmentStatus.WORKING));
 
-        mockMvc.perform(delete("/api/equipment/{id}", cable.getId()))
+        mockMvc.perform(delete("/api/equipment/{id}", cable.getId()).with(asLecturer()))
                 .andExpect(status().isNoContent());
-        mockMvc.perform(delete("/api/equipment/{id}", cable.getId()))
+        mockMvc.perform(delete("/api/equipment/{id}", cable.getId()).with(asLecturer()))
                 .andExpect(status().isNotFound());
+    }
+
+    private static RequestPostProcessor asLecturer() {
+        return jwt().authorities(new SimpleGrantedAuthority("ROLE_LECTURER"));
     }
 }
