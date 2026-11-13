@@ -31,3 +31,5 @@ Klient: `gradlew :client:run` (w IntelliJ: panel Gradle → `client` → Tasks �
 Baza danych (przed serwerem): `docker compose up -d`, stan: `docker ps`.
 
 Serwer: `gradlew :server:bootRun`.
+
+Testy serwera: `gradlew :server:test` (baza H2 w pamięci, Docker nie jest potrzebny).
