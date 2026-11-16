@@ -11,12 +11,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import pl.pollub.inwentaryzacja.client.api.ApiClient;
 import pl.pollub.inwentaryzacja.client.model.Equipment;
+import pl.pollub.inwentaryzacja.client.model.Inventory;
 import pl.pollub.inwentaryzacja.client.model.Role;
 import pl.pollub.inwentaryzacja.client.model.Room;
 import pl.pollub.inwentaryzacja.client.model.Workstation;
+import pl.pollub.inwentaryzacja.client.serialization.InventoryFile;
 
+import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -30,6 +34,7 @@ public class MainView extends BorderPane {
     private final ListView<Equipment> equipmentList = new ListView<>();
     private final TextField searchField = new TextField();
     private final Label messageLabel = new Label();
+    private final InventoryFile inventoryFile = new InventoryFile();
 
     public MainView(ApiClient apiClient, Role role) {
         this.apiClient = apiClient;
@@ -55,7 +60,11 @@ public class MainView extends BorderPane {
                     button("Usuń", equipmentList, this::deleteEquipment)));
             Button faultReportsButton = new Button("Zgłoszenia usterek");
             faultReportsButton.setOnAction(event -> new FaultReportListDialog(apiClient).showAndWait());
-            topBar.getChildren().add(faultReportsButton);
+            Button exportButton = new Button("Eksport");
+            exportButton.setOnAction(event -> exportInventory());
+            Button importButton = new Button("Import");
+            importButton.setOnAction(event -> importInventory());
+            topBar.getChildren().addAll(faultReportsButton, exportButton, importButton);
         }
         if (role == Role.STUDENT) {
             workstationColumn.getChildren().add(button("Zgłoś usterkę", workstationList, this::reportFault));
@@ -163,6 +172,36 @@ public class MainView extends BorderPane {
                 .ifPresent(report -> ServerCall.run(
                         () -> apiClient.post("/api/fault-reports", report),
                         () -> messageLabel.setText("Zgłoszenie wysłane"), messageLabel));
+    }
+
+    private void exportInventory() {
+        File file = fileChooser("Eksport inwentarza").showSaveDialog(getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+        ServerCall.run(() -> inventoryFile.save(file.toPath(), apiClient.get("/api/inventory/export", Inventory.class)),
+                () -> messageLabel.setText("Zapisano plik " + file.getName()), messageLabel);
+    }
+
+    private void importInventory() {
+        File file = fileChooser("Import inwentarza").showOpenDialog(getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+        ServerCall.run(() -> apiClient.post("/api/inventory/import", inventoryFile.load(file.toPath())),
+                () -> {
+                    showRooms();
+                    messageLabel.setText("Zaimportowano plik " + file.getName());
+                }, messageLabel);
+    }
+
+    private static FileChooser fileChooser(String title) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(title);
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("JSON", "*.json"),
+                new FileChooser.ExtensionFilter("XML", "*.xml"));
+        return chooser;
     }
 
     private static VBox column(String title, ListView<?> list) {
