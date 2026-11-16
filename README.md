@@ -33,3 +33,15 @@ Baza danych (przed serwerem): `docker compose up -d`, stan: `docker ps`.
 Serwer: `gradlew :server:bootRun`.
 
 Testy serwera: `gradlew :server:test` (baza H2 w pamięci, Docker nie jest potrzebny).
+
+### Konta startowe
+
+Przy pustej tabeli użytkowników serwer tworzy po jednym koncie na rolę (tylko do testów i prezentacji):
+
+| Login | Hasło | Rola |
+|---|---|---|
+| `student` | `student123` | `STUDENT` |
+| `wykladowca` | `wykladowca123` | `LECTURER` |
+| `admin` | `admin123` | `ADMIN` |
+
+Tokeny JWT są podpisywane kluczem `jwt.secret` (domyślny jest tylko do pracy lokalnej, poza nią ustaw zmienną `JWT_SECRET`).
