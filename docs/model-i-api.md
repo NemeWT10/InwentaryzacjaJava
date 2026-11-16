@@ -23,7 +23,7 @@
 | `POST /api/fault-reports`                                                  | `STUDENT` |
 | `GET /api/fault-reports?status=OPEN`, `PUT /api/fault-reports/{id}`        | `LECTURER` |
 | `GET/POST/PUT /api/users`                                                  | `ADMIN` |
-| `GET /api/inventory/export?format=json\|xml`, `POST /api/inventory/import` | `LECTURER` |
+| `GET /api/inventory/export`, `POST /api/inventory/import`                  | `LECTURER` |
 
 ## Logowanie
 
