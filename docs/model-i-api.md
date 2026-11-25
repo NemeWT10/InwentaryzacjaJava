@@ -87,3 +87,15 @@ Odpowiedź `GET` — z numerami sali i stanowiska oraz loginem zgłaszającego (
 [{"id": 1, "workstationId": 1, "roomNumber": "E203", "workstationNumber": "1", "reporterLogin": "student",
   "description": "Nie działa port USB", "status": "OPEN", "createdAt": "2026-11-12T10:15:00Z"}]
 ```
+
+## Administracja
+
+| Żądanie | Treść żądania |
+|---|---|
+| `POST /api/rooms` | `{"number": "E204", "description": "Pracownia systemów wbudowanych"}` |
+| `GET /api/users` | brak; odpowiedź: `[{"id": 1, "login": "admin", "role": "ADMIN"}]` |
+| `POST /api/users` | `{"login": "jkowalski", "password": "haslo123", "role": "STUDENT"}` |
+| `PUT /api/users/{id}` | jak przy `POST`; `"password": null` = hasło bez zmian |
+
+Zajęty numer sali lub login: `409`. Ostatniemu administratorowi nie można odebrać roli (`409`).
+Inna rola niż `ADMIN`: `403`.
