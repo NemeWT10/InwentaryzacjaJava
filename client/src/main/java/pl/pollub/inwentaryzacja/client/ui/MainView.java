@@ -48,6 +48,7 @@ public class MainView extends BorderPane {
                 .addListener((observable, oldRoom, newRoom) -> showWorkstations(newRoom));
         workstationList.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldWorkstation, newWorkstation) -> showEquipment(newWorkstation));
+        VBox roomColumn = column("Sale", roomList);
         VBox workstationColumn = column("Stanowiska", workstationList);
         VBox equipmentColumn = column("Sprzęt", equipmentList);
         if (role == Role.LECTURER) {
@@ -69,7 +70,15 @@ public class MainView extends BorderPane {
         if (role == Role.STUDENT) {
             workstationColumn.getChildren().add(button("Zgłoś usterkę", workstationList, this::reportFault));
         }
-        HBox lists = new HBox(SPACING, column("Sale", roomList), workstationColumn, equipmentColumn);
+        if (role == Role.ADMIN) {
+            Button addRoomButton = new Button("Dodaj salę");
+            addRoomButton.setOnAction(event -> addRoom());
+            roomColumn.getChildren().add(addRoomButton);
+            Button usersButton = new Button("Użytkownicy");
+            usersButton.setOnAction(event -> new UserListDialog(apiClient).showAndWait());
+            topBar.getChildren().add(usersButton);
+        }
+        HBox lists = new HBox(SPACING, roomColumn, workstationColumn, equipmentColumn);
 
         setPadding(new Insets(SPACING));
         setTop(topBar);
@@ -116,6 +125,14 @@ public class MainView extends BorderPane {
         } else {
             showEquipment(workstation);
         }
+    }
+
+    private void addRoom() {
+        new RoomDialog()
+                .showAndWait()
+                .ifPresent(room -> ServerCall.run(
+                        () -> apiClient.post("/api/rooms", room),
+                        this::showRooms, messageLabel));
     }
 
     private void addWorkstation() {
