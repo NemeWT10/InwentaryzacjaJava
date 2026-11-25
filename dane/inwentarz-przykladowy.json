@@ -1,0 +1,117 @@
+{
+  "rooms" : [ {
+    "id" : 1,
+    "number" : "E201",
+    "description" : "Pracownia systemów wbudowanych"
+  }, {
+    "id" : 2,
+    "number" : "E202",
+    "description" : "Pracownia mikroprocesorów"
+  } ],
+  "workstations" : [ {
+    "id" : 1,
+    "roomId" : 1,
+    "number" : "1",
+    "notes" : "przy oknie"
+  }, {
+    "id" : 2,
+    "roomId" : 1,
+    "number" : "2",
+    "notes" : "komputer z Windows 11"
+  }, {
+    "id" : 3,
+    "roomId" : 2,
+    "number" : "1",
+    "notes" : "stanowisko prowadzącego"
+  }, {
+    "id" : 4,
+    "roomId" : 2,
+    "number" : "2",
+    "notes" : "dwa monitory"
+  } ],
+  "equipment" : [ {
+    "id" : 1,
+    "workstationId" : 1,
+    "type" : "BOARD",
+    "name" : "NUCLEO-L476RG",
+    "microcontroller" : "STM32L476RG",
+    "status" : "WORKING"
+  }, {
+    "id" : 2,
+    "workstationId" : 1,
+    "type" : "CABLE",
+    "name" : "Kabel USB A - mini B",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  }, {
+    "id" : 3,
+    "workstationId" : 1,
+    "type" : "MODULE",
+    "name" : "Wyświetlacz OLED 128x64 (SH1106)",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  }, {
+    "id" : 4,
+    "workstationId" : 2,
+    "type" : "BOARD",
+    "name" : "NUCLEO-F401RE",
+    "microcontroller" : "STM32F401RE",
+    "status" : "BROKEN"
+  }, {
+    "id" : 5,
+    "workstationId" : 2,
+    "type" : "PROGRAMMER",
+    "name" : "ST-LINK/V2",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  }, {
+    "id" : 6,
+    "workstationId" : 2,
+    "type" : "CABLE",
+    "name" : "Kabel USB A - micro B",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  }, {
+    "id" : 7,
+    "workstationId" : 3,
+    "type" : "BOARD",
+    "name" : "Arduino Uno R3",
+    "microcontroller" : "ATmega328P",
+    "status" : "WORKING"
+  }, {
+    "id" : 8,
+    "workstationId" : 3,
+    "type" : "BOARD",
+    "name" : "ESP32-DevKitC",
+    "microcontroller" : "ESP32",
+    "status" : "IN_REPAIR"
+  }, {
+    "id" : 9,
+    "workstationId" : 3,
+    "type" : "MODULE",
+    "name" : "Czujnik temperatury i wilgotności DHT22",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  }, {
+    "id" : 10,
+    "workstationId" : 4,
+    "type" : "BOARD",
+    "name" : "Raspberry Pi Pico",
+    "microcontroller" : "RP2040",
+    "status" : "WORKING"
+  }, {
+    "id" : 11,
+    "workstationId" : 4,
+    "type" : "PROGRAMMER",
+    "name" : "J-Link EDU Mini",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  }, {
+    "id" : 12,
+    "workstationId" : 4,
+    "type" : "CABLE",
+    "name" : "Kabel USB A - USB C",
+    "microcontroller" : null,
+    "status" : "WORKING"
+  } ]
+}

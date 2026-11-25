@@ -12,6 +12,7 @@ Architektura klient-serwer: klient JavaFX komunikuje się z backendem Spring Boo
 | `client/` | aplikacja kliencka JavaFX |
 | `server/` | backend Spring Boot + MySQL |
 | `docs/` | model danych i lista endpointów (`model-i-api.md`) |
+| `dane/` | dane przykładowe do importu (`inwentarz-przykladowy.json`) |
 
 ## Autorzy
 
@@ -45,3 +46,11 @@ Przy pustej tabeli użytkowników serwer tworzy po jednym koncie na rolę (tylko
 | `admin` | `admin123` | `ADMIN` |
 
 Tokeny JWT są podpisywane kluczem `jwt.secret` (domyślny jest tylko do pracy lokalnej, poza nią ustaw zmienną `JWT_SECRET`).
+
+### Dane przykładowe
+
+Plik `dane/inwentarz-przykladowy.json` zawiera 2 sale, 4 stanowiska i 12 sztuk sprzętu (płytki, kable, programatory, moduły).
+Wczytanie: zaloguj się jako `wykladowca`, kliknij **Import** i wybierz plik.
+
+Import zawsze dodaje nowe rekordy, a numery sal muszą być wolne, dlatego plik wczytuje się raz, do bazy bez sal E201 i E202.
+Ponowny import kończy się błędem `409` i niczego nie zapisuje.
