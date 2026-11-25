@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface FaultReportRepository extends JpaRepository<FaultReport, Long> {
 
-    List<FaultReport> findByStatus(FaultReportStatus status);
+    List<FaultReport> findByStatusOrderByCreatedAtDesc(FaultReportStatus status);
+
+    List<FaultReport> findAllByOrderByCreatedAtDesc();
 }
