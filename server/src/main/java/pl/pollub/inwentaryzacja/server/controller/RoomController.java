@@ -1,5 +1,7 @@
 package pl.pollub.inwentaryzacja.server.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import pl.pollub.inwentaryzacja.server.service.RoomService;
 
 import java.util.List;
 
+@Tag(name = "Sale", description = "Sale pracowni")
 @RestController
 @RequestMapping("/api/rooms")
 @RequiredArgsConstructor
@@ -21,11 +24,13 @@ public class RoomController {
 
     private final RoomService roomService;
 
+    @Operation(summary = "Lista sal (każdy zalogowany)")
     @GetMapping
     public List<RoomDto> findAll() {
         return roomService.findAll();
     }
 
+    @Operation(summary = "Dodanie sali (ADMIN)")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RoomDto create(@Valid @RequestBody RoomDto room) {

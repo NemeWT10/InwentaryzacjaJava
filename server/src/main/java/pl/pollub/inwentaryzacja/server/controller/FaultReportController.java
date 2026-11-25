@@ -1,5 +1,7 @@
 package pl.pollub.inwentaryzacja.server.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import pl.pollub.inwentaryzacja.server.service.FaultReportService;
 
 import java.util.List;
 
+@Tag(name = "Zgłoszenia usterek", description = "Zgłaszanie usterek przez studentów i obsługa przez wykładowców")
 @RestController
 @RequestMapping("/api/fault-reports")
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class FaultReportController {
     private final FaultReportService faultReportService;
 
     // POST /api/fault-reports {"workstationId": 1, "description": "..."}, zglaszajacy = login z tokenu
+    @Operation(summary = "Zgłoszenie usterki stanowiska; zgłaszający z tokenu (STUDENT)")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FaultReportDto create(@Valid @RequestBody FaultReportRequest request, Authentication authentication) {
@@ -36,12 +40,14 @@ public class FaultReportController {
     }
 
     // GET /api/fault-reports?status=OPEN
+    @Operation(summary = "Lista zgłoszeń, opcjonalnie wg statusu (LECTURER)")
     @GetMapping
     public List<FaultReportDto> find(@RequestParam(required = false) FaultReportStatus status) {
         return faultReportService.find(status);
     }
 
     // PUT /api/fault-reports/{id} {"status": "CLOSED"}
+    @Operation(summary = "Zmiana statusu zgłoszenia, np. zamknięcie (LECTURER)")
     @PutMapping("/{id}")
     public FaultReportDto changeStatus(@PathVariable Long id, @Valid @RequestBody FaultReportStatusChange change) {
         return faultReportService.changeStatus(id, change.status());

@@ -32,6 +32,9 @@ Baza danych (przed serwerem): `docker compose up -d`, stan: `docker ps`.
 
 Serwer: `gradlew :server:bootRun`.
 
+Dokumentacja REST API (Swagger) przy działającym serwerze: http://localhost:8080/swagger-ui.html.
+Token z `POST /api/auth/login` wpisuje się w przycisku „Authorize”.
+
 Testy serwera: `gradlew :server:test` (baza H2 w pamięci, Docker nie jest potrzebny).
 
 ### Konta startowe

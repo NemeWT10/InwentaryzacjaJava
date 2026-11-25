@@ -1,5 +1,7 @@
 package pl.pollub.inwentaryzacja.server.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import pl.pollub.inwentaryzacja.server.service.UserService;
 
 import java.util.List;
 
+@Tag(name = "Użytkownicy", description = "Konta i role (administrator)")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -24,12 +27,14 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Lista kont bez haseł (ADMIN)")
     @GetMapping
     public List<UserDto> findAll() {
         return userService.findAll();
     }
 
     // POST /api/users {"login": "...", "password": "...", "role": "STUDENT"}
+    @Operation(summary = "Założenie konta (ADMIN)")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@Valid @RequestBody UserRequest user) {
@@ -37,6 +42,7 @@ public class UserController {
     }
 
     // PUT /api/users/{id} - zmiana loginu i roli, haslo tylko gdy podane
+    @Operation(summary = "Zmiana loginu, roli lub hasła (ADMIN)")
     @PutMapping("/{id}")
     public UserDto update(@PathVariable Long id, @Valid @RequestBody UserRequest user) {
         return userService.update(id, user);

@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/rooms", "/api/workstations", "/api/equipment")
                         .authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/rooms").hasRole("ADMIN")

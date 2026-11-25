@@ -1,5 +1,7 @@
 package pl.pollub.inwentaryzacja.server.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import pl.pollub.inwentaryzacja.server.service.WorkstationService;
 
 import java.util.List;
 
+@Tag(name = "Stanowiska", description = "Stanowiska w salach")
 @RestController
 @RequestMapping("/api/workstations")
 @RequiredArgsConstructor
@@ -25,17 +28,20 @@ public class WorkstationController {
     private final WorkstationService workstationService;
 
     // GET /api/workstations?roomId=1
+    @Operation(summary = "Lista stanowisk, opcjonalnie w jednej sali (każdy zalogowany)")
     @GetMapping
     public List<WorkstationDto> find(@RequestParam(required = false) Long roomId) {
         return workstationService.find(roomId);
     }
 
+    @Operation(summary = "Dodanie stanowiska (LECTURER)")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public WorkstationDto create(@Valid @RequestBody WorkstationDto workstation) {
         return workstationService.create(workstation);
     }
 
+    @Operation(summary = "Edycja stanowiska (LECTURER)")
     @PutMapping("/{id}")
     public WorkstationDto update(@PathVariable Long id, @Valid @RequestBody WorkstationDto workstation) {
         return workstationService.update(id, workstation);
