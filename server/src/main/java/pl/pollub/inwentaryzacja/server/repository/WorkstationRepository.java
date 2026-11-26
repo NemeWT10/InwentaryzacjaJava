@@ -8,4 +8,6 @@ import java.util.List;
 public interface WorkstationRepository extends JpaRepository<Workstation, Long> {
 
     List<Workstation> findByRoomId(Long roomId);
+
+    boolean existsByRoomId(Long roomId);
 }

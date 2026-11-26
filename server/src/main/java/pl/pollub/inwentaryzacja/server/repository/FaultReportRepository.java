@@ -11,4 +11,8 @@ public interface FaultReportRepository extends JpaRepository<FaultReport, Long> 
     List<FaultReport> findByStatusOrderByCreatedAtDesc(FaultReportStatus status);
 
     List<FaultReport> findAllByOrderByCreatedAtDesc();
+
+    boolean existsByReporterId(Long reporterId);
+
+    boolean existsByWorkstationId(Long workstationId);
 }

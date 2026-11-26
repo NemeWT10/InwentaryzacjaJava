@@ -47,11 +47,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/rooms", "/api/workstations", "/api/equipment")
                         .authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/rooms").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/rooms/**").hasRole("ADMIN")
                         .requestMatchers("/api/workstations/**", "/api/equipment/**").hasRole("LECTURER")
                         .requestMatchers(HttpMethod.POST, "/api/fault-reports").hasRole("STUDENT")
                         .requestMatchers("/api/fault-reports/**").hasRole("LECTURER")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/inventory/**").hasRole("LECTURER")
+                        .requestMatchers("/api/inventory/**").hasAnyRole("LECTURER", "ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

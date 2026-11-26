@@ -35,6 +35,7 @@ public class LoginView extends VBox {
         Button loginButton = new Button("Zaloguj");
         loginButton.setDefaultButton(true);
         loginButton.setOnAction(event -> logIn());
+        errorLabel.getStyleClass().add("error");
 
         setPadding(new Insets(SPACING));
         setAlignment(Pos.CENTER);

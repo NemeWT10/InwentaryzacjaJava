@@ -10,6 +10,7 @@ import pl.pollub.inwentaryzacja.server.dto.UserDto;
 import pl.pollub.inwentaryzacja.server.dto.UserRequest;
 import pl.pollub.inwentaryzacja.server.model.Role;
 import pl.pollub.inwentaryzacja.server.model.User;
+import pl.pollub.inwentaryzacja.server.repository.FaultReportRepository;
 import pl.pollub.inwentaryzacja.server.repository.UserRepository;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FaultReportRepository faultReportRepository;
 
     public List<UserDto> findAll() {
         return userRepository.findAll().stream().map(UserDto::from).toList();
@@ -59,6 +61,27 @@ public class UserService {
             user.setPasswordHash(passwordEncoder.encode(request.password()));
         }
         return UserDto.from(user);
+    }
+
+    /** Usuwa konto; nie własne i nie ostatniego administratora. */
+    @Transactional
+    public void delete(Long id, String currentLogin) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nie ma konta o id " + id));
+        // login z tokenu mógł się zmienić - wtedy trzeba zalogować się ponownie
+        User current = userRepository.findByLogin(currentLogin)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Zaloguj się ponownie"));
+        if (current.getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Nie można usunąć własnego konta");
+        }
+        if (user.getRole() == Role.ADMIN && userRepository.countByRole(Role.ADMIN) <= 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Nie można usunąć ostatniego administratora");
+        }
+        if (faultReportRepository.existsByReporterId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Konto " + user.getLogin() + " ma zgłoszenia usterek, nie można go usunąć");
+        }
+        userRepository.delete(user);
     }
 
     private static ResponseStatusException loginTaken(String login) {

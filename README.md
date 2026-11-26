@@ -53,7 +53,7 @@ Tokeny JWT są podpisywane kluczem `jwt.secret` (domyślny jest tylko do pracy l
 ### Dane przykładowe
 
 Plik `dane/inwentarz-przykladowy.json` zawiera 2 sale, 4 stanowiska i 12 sztuk sprzętu (płytki, kable, programatory, moduły).
-Wczytanie: zaloguj się jako `wykladowca`, kliknij **Import** i wybierz plik.
+Wczytanie: zaloguj się jako `wykladowca` lub `admin`, kliknij **Import** i wybierz plik.
 
-Import zawsze dodaje nowe rekordy, a numery sal muszą być wolne, dlatego plik wczytuje się raz, do bazy bez sal E201 i E202.
-Ponowny import kończy się błędem `409` i niczego nie zapisuje.
+Import zastępuje cały inwentarz: obecne sale, stanowiska, sprzęt i zgłoszenia usterek są usuwane, konta użytkowników zostają.
+Przed importem klient prosi o potwierdzenie. Błąd w pliku cofa całą operację, więc dane w bazie zostają bez zmian.

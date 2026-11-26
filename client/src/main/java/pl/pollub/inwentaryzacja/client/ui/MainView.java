@@ -1,11 +1,9 @@
 package pl.pollub.inwentaryzacja.client.ui;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -23,6 +21,9 @@ import pl.pollub.inwentaryzacja.client.serialization.InventoryFile;
 import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MainView extends BorderPane {
 
@@ -35,37 +36,43 @@ public class MainView extends BorderPane {
     private final TextField searchField = new TextField();
     private final Label messageLabel = new Label();
     private final InventoryFile inventoryFile = new InventoryFile();
+    private Map<Long, Workstation> allWorkstations = Map.of();
 
-    public MainView(ApiClient apiClient, Role role) {
+    public MainView(ApiClient apiClient, Role role, Runnable onLogout) {
         this.apiClient = apiClient;
 
-        searchField.setPromptText("Mikrokontroler, np. STM32");
-        Button searchButton = new Button("Szukaj sprzętu");
+        searchField.setPromptText("np. STM32");
+        Button searchButton = new Button("Szukaj mikrokontrolera");
         searchButton.setOnAction(event -> searchEquipment());
-        HBox topBar = new HBox(SPACING, new Label("Zalogowano jako: " + role), searchField, searchButton);
+        Label userLabel = new Label("Zalogowano jako: " + apiClient.getUserLogin() + " (" + role + ")");
+        HBox topBar = new HBox(SPACING, userLabel, searchField, searchButton);
 
         roomList.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldRoom, newRoom) -> showWorkstations(newRoom));
         workstationList.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldWorkstation, newWorkstation) -> showEquipment(newWorkstation));
+        equipmentList.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Equipment equipment, boolean empty) {
+                super.updateItem(equipment, empty);
+                setText(empty || equipment == null ? null : describe(equipment));
+            }
+        });
         VBox roomColumn = column("Sale", roomList);
         VBox workstationColumn = column("Stanowiska", workstationList);
         VBox equipmentColumn = column("Sprzęt", equipmentList);
         if (role == Role.LECTURER) {
             workstationColumn.getChildren().add(new HBox(SPACING,
                     button("Dodaj", roomList, this::addWorkstation),
-                    button("Edytuj", workstationList, this::editWorkstation)));
+                    button("Edytuj", workstationList, this::editWorkstation),
+                    button("Usuń", workstationList, this::deleteWorkstation)));
             equipmentColumn.getChildren().add(new HBox(SPACING,
                     button("Dodaj", workstationList, this::addEquipment),
                     button("Edytuj", equipmentList, this::editEquipment),
                     button("Usuń", equipmentList, this::deleteEquipment)));
             Button faultReportsButton = new Button("Zgłoszenia usterek");
             faultReportsButton.setOnAction(event -> new FaultReportListDialog(apiClient).showAndWait());
-            Button exportButton = new Button("Eksport");
-            exportButton.setOnAction(event -> exportInventory());
-            Button importButton = new Button("Import");
-            importButton.setOnAction(event -> importInventory());
-            topBar.getChildren().addAll(faultReportsButton, exportButton, importButton);
+            topBar.getChildren().add(faultReportsButton);
         }
         if (role == Role.STUDENT) {
             workstationColumn.getChildren().add(button("Zgłoś usterkę", workstationList, this::reportFault));
@@ -73,11 +80,23 @@ public class MainView extends BorderPane {
         if (role == Role.ADMIN) {
             Button addRoomButton = new Button("Dodaj salę");
             addRoomButton.setOnAction(event -> addRoom());
-            roomColumn.getChildren().add(addRoomButton);
+            roomColumn.getChildren().add(new HBox(SPACING,
+                    addRoomButton,
+                    button("Usuń salę", roomList, this::deleteRoom)));
             Button usersButton = new Button("Użytkownicy");
             usersButton.setOnAction(event -> new UserListDialog(apiClient).showAndWait());
             topBar.getChildren().add(usersButton);
         }
+        if (role == Role.LECTURER || role == Role.ADMIN) {
+            Button exportButton = new Button("Eksport");
+            exportButton.setOnAction(event -> exportInventory());
+            Button importButton = new Button("Import");
+            importButton.setOnAction(event -> importInventory());
+            topBar.getChildren().addAll(exportButton, importButton);
+        }
+        Button logoutButton = new Button("Wyloguj");
+        logoutButton.setOnAction(event -> onLogout.run());
+        topBar.getChildren().add(logoutButton);
         HBox lists = new HBox(SPACING, roomColumn, workstationColumn, equipmentColumn);
 
         setPadding(new Insets(SPACING));
@@ -97,6 +116,7 @@ public class MainView extends BorderPane {
     private void showWorkstations(Room room) {
         equipmentList.getItems().clear();
         if (room == null) {
+            workstationList.getItems().clear();
             return;
         }
         ServerCall.run(() -> apiClient.get("/api/workstations?roomId=" + room.id(), Workstation[].class),
@@ -112,10 +132,34 @@ public class MainView extends BorderPane {
     }
 
     private void searchEquipment() {
-        workstationList.getSelectionModel().clearSelection();
+        roomList.getSelectionModel().clearSelection();
         String microcontroller = URLEncoder.encode(searchField.getText(), StandardCharsets.UTF_8);
-        ServerCall.run(() -> apiClient.get("/api/equipment?microcontroller=" + microcontroller, Equipment[].class),
-                equipment -> equipmentList.getItems().setAll(equipment), messageLabel);
+        ServerCall.run(() -> apiClient.get("/api/workstations", Workstation[].class), workstations -> {
+            allWorkstations = Arrays.stream(workstations).collect(Collectors.toMap(Workstation::id, w -> w));
+            ServerCall.run(() -> apiClient.get("/api/equipment?microcontroller=" + microcontroller, Equipment[].class),
+                    this::showSearchResults, messageLabel);
+        }, messageLabel);
+    }
+
+    private void showSearchResults(Equipment[] equipment) {
+        equipmentList.getItems().setAll(equipment);
+        messageLabel.setText(equipment.length == 0
+                ? "Nie znaleziono sprzętu z takim mikrokontrolerem"
+                : "Znaleziono sprzęt: " + equipment.length);
+    }
+
+    // sala i stanowisko tylko przy wynikach wyszukiwania
+    private String describe(Equipment equipment) {
+        Workstation workstation = allWorkstations.get(equipment.workstationId());
+        if (roomList.getSelectionModel().getSelectedItem() != null || workstation == null) {
+            return equipment.toString();
+        }
+        String roomNumber = roomList.getItems().stream()
+                .filter(room -> room.id().equals(workstation.roomId()))
+                .map(Room::number)
+                .findFirst()
+                .orElse("?");
+        return equipment + " – sala " + roomNumber + ", stanowisko " + workstation.number();
     }
 
     private void refreshEquipment() {
@@ -153,6 +197,15 @@ public class MainView extends BorderPane {
                         () -> showWorkstations(room), messageLabel));
     }
 
+    private void deleteWorkstation() {
+        Room room = roomList.getSelectionModel().getSelectedItem();
+        Workstation workstation = workstationList.getSelectionModel().getSelectedItem();
+        if (Confirmation.ask("Usuwanie stanowiska", "Usunąć stanowisko " + workstation.number() + "?", "Usuń")) {
+            ServerCall.run(() -> apiClient.delete("/api/workstations/" + workstation.id()),
+                    () -> showWorkstations(room), messageLabel);
+        }
+    }
+
     private void addEquipment() {
         Workstation workstation = workstationList.getSelectionModel().getSelectedItem();
         new AddEquipmentDialog(workstation.id())
@@ -170,14 +223,20 @@ public class MainView extends BorderPane {
                         this::refreshEquipment, messageLabel));
     }
 
+    private void deleteRoom() {
+        Room room = roomList.getSelectionModel().getSelectedItem();
+        if (!workstationList.getItems().isEmpty()) {
+            messageLabel.setText("Nie można usunąć sali, w której są stanowiska");
+            return;
+        }
+        if (Confirmation.ask("Usuwanie sali", "Usunąć salę " + room.number() + "?", "Usuń")) {
+            ServerCall.run(() -> apiClient.delete("/api/rooms/" + room.id()), this::showRooms, messageLabel);
+        }
+    }
+
     private void deleteEquipment() {
         Equipment equipment = equipmentList.getSelectionModel().getSelectedItem();
-        ButtonType deleteButton = new ButtonType("Usuń", ButtonBar.ButtonData.OK_DONE);
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "Usunąć „" + equipment.name() + "”?",
-                deleteButton, new ButtonType("Anuluj", ButtonBar.ButtonData.CANCEL_CLOSE));
-        confirmation.setTitle("Usuwanie sprzętu");
-        confirmation.setHeaderText(null);
-        if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == deleteButton) {
+        if (Confirmation.ask("Usuwanie sprzętu", "Usunąć „" + equipment.name() + "”?", "Usuń")) {
             ServerCall.run(() -> apiClient.delete("/api/equipment/" + equipment.id()),
                     this::refreshEquipment, messageLabel);
         }
@@ -202,7 +261,8 @@ public class MainView extends BorderPane {
 
     private void importInventory() {
         File file = fileChooser("Import inwentarza").showOpenDialog(getScene().getWindow());
-        if (file == null) {
+        if (file == null || !Confirmation.ask("Import inwentarza", "Wczytać plik " + file.getName()
+                + "? Obecne sale, stanowiska, sprzęt i zgłoszenia usterek zostaną usunięte.", "Importuj")) {
             return;
         }
         ServerCall.run(() -> apiClient.post("/api/inventory/import", inventoryFile.load(file.toPath())),

@@ -1,5 +1,6 @@
 package pl.pollub.inwentaryzacja.client.api;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -19,6 +20,7 @@ public class ApiClient {
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
     private final ObjectMapper jsonMapper = new JsonMapper();
     private String token;
+    private String userLogin;
 
     public ApiClient(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -37,6 +39,7 @@ public class ApiClient {
         }
         LoginResponse loginResponse = jsonMapper.readValue(response.body(), LoginResponse.class);
         token = loginResponse.token();
+        userLogin = login;
         return loginResponse;
     }
 
@@ -61,6 +64,15 @@ public class ApiClient {
         return token;
     }
 
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void logout() {
+        token = null;
+        userLogin = null;
+    }
+
     private HttpRequest.Builder request(String path) {
         return HttpRequest.newBuilder(URI.create(baseUrl + path))
                 .header("Authorization", "Bearer " + token)
@@ -74,9 +86,22 @@ public class ApiClient {
     private HttpResponse<String> sendAuthorized(HttpRequest.Builder request) {
         HttpResponse<String> response = send(request.build());
         if (!isSuccess(response.statusCode())) {
-            throw new ApiException("Błąd serwera, kod: " + response.statusCode());
+            throw new ApiException(errorMessage(response));
         }
         return response;
+    }
+
+    // komunikat z serwera (pole detail), a gdy go nie ma - sam kod
+    private String errorMessage(HttpResponse<String> response) {
+        try {
+            String detail = jsonMapper.readTree(response.body()).path("detail").asString("");
+            if (!detail.isBlank()) {
+                return detail;
+            }
+        } catch (JacksonException e) {
+            // odpowiedź bez JSON-a
+        }
+        return "Błąd serwera, kod: " + response.statusCode();
     }
 
     private static boolean isSuccess(int statusCode) {

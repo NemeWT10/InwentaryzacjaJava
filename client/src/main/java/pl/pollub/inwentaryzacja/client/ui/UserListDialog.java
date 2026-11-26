@@ -28,9 +28,14 @@ public class UserListDialog extends Dialog<Void> {
         Button editButton = new Button("Edytuj");
         editButton.setOnAction(event -> editUser());
         editButton.disableProperty().bind(userList.getSelectionModel().selectedItemProperty().isNull());
+        Button deleteButton = new Button("Usuń");
+        deleteButton.setOnAction(event -> deleteUser());
+        deleteButton.disableProperty().bind(userList.getSelectionModel().selectedItemProperty().isNull());
 
         setTitle("Użytkownicy");
-        getDialogPane().setContent(new VBox(SPACING, userList, new HBox(SPACING, addButton, editButton), messageLabel));
+        getDialogPane().setContent(new VBox(SPACING, userList,
+                new HBox(SPACING, addButton, editButton, deleteButton), messageLabel));
+        getDialogPane().getStylesheets().add(Theme.STYLESHEET);
         getDialogPane().getButtonTypes().add(new ButtonType("Wróć", ButtonBar.ButtonData.CANCEL_CLOSE));
 
         showUsers();
@@ -56,5 +61,12 @@ public class UserListDialog extends Dialog<Void> {
                 .ifPresent(changes -> ServerCall.run(
                         () -> apiClient.put("/api/users/" + user.id(), changes),
                         this::showUsers, messageLabel));
+    }
+
+    private void deleteUser() {
+        User user = userList.getSelectionModel().getSelectedItem();
+        if (Confirmation.ask("Usuwanie konta", "Usunąć konto " + user.login() + "?", "Usuń")) {
+            ServerCall.run(() -> apiClient.delete("/api/users/" + user.id()), this::showUsers, messageLabel);
+        }
     }
 }

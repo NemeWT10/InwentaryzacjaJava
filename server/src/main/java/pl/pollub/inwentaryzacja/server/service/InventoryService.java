@@ -13,6 +13,7 @@ import pl.pollub.inwentaryzacja.server.model.Equipment;
 import pl.pollub.inwentaryzacja.server.model.Room;
 import pl.pollub.inwentaryzacja.server.model.Workstation;
 import pl.pollub.inwentaryzacja.server.repository.EquipmentRepository;
+import pl.pollub.inwentaryzacja.server.repository.FaultReportRepository;
 import pl.pollub.inwentaryzacja.server.repository.RoomRepository;
 import pl.pollub.inwentaryzacja.server.repository.WorkstationRepository;
 
@@ -27,6 +28,7 @@ public class InventoryService {
     private final RoomRepository roomRepository;
     private final WorkstationRepository workstationRepository;
     private final EquipmentRepository equipmentRepository;
+    private final FaultReportRepository faultReportRepository;
 
     public InventoryDto export() {
         return new InventoryDto(
@@ -35,9 +37,11 @@ public class InventoryService {
                 equipmentRepository.findAll().stream().map(EquipmentDto::from).toList());
     }
 
-    /** Wszystko z pliku zapisuje jako nowe rekordy; id z pliku służą tylko do powiązań. */
+    /** Zastępuje cały inwentarz danymi z pliku; id z pliku służą tylko do powiązań. */
     @Transactional
     public void importInventory(InventoryDto inventory) {
+        deleteInventory();
+
         Map<Long, Room> rooms = new HashMap<>();
         for (RoomDto dto : inventory.rooms()) {
             Room room = new Room(null, dto.number(), dto.description());
@@ -56,6 +60,14 @@ public class InventoryService {
             equipmentRepository.save(new Equipment(null, workstation, dto.type(), dto.name(),
                     dto.microcontroller(), dto.status()));
         }
+    }
+
+    // kolejność zgodna z kluczami obcymi; konta użytkowników zostają
+    private void deleteInventory() {
+        faultReportRepository.deleteAllInBatch();
+        equipmentRepository.deleteAllInBatch();
+        workstationRepository.deleteAllInBatch();
+        roomRepository.deleteAllInBatch();
     }
 
     private static <T> T findImported(Map<Long, T> imported, Long id, String name) {

@@ -1,0 +1,642 @@
+/*
+ * Wygląd klienta "Inwentaryzacja sprzętu laboratoriów systemów wbudowanych" - styl laboratoryjny: biel + błękit.
+ */
+
+/* ============================== Paleta i czcionka ============================== */
+
+.root,
+.dialog-pane {
+    /* własne kolory */
+    -lab-bg: #eef2f7;            /* chłodne, jasnoszare tło */
+    -lab-surface: #ffffff;       /* białe powierzchnie (karty, pola) */
+    -lab-surface-alt: #f6f8fb;   /* co drugi wiersz listy, stopka okna */
+    -lab-border: #d3dbe6;        /* cienkie obramowania */
+    -lab-border-soft: #e3e8ef;
+    -lab-ink: #1b2a41;           /* tekst podstawowy */
+    -lab-muted: #5d6c82;         /* tekst pomocniczy */
+    -lab-faint: #9aa7b8;         /* podpowiedzi, elementy wyłączone */
+    -lab-accent: #1668dc;        /* jedyny akcent - błękit */
+    -lab-accent-hover: #2b7af0;
+    -lab-accent-pressed: #0f4fb2;
+    -lab-accent-tint: #e7f0fe;   /* bardzo jasny błękit (zaznaczenia) */
+    -lab-accent-tint-strong: #d3e4fd;
+    -lab-danger: #cf3341;
+    -lab-danger-hover: #df4553;
+    -lab-danger-pressed: #a82531;
+
+    /* kolory Modeny, z których wyliczane są pozostałe kontrolki */
+    -fx-base: #f1f4f8;
+    -fx-background: #eef2f7;
+    -fx-control-inner-background: #ffffff;
+    -fx-control-inner-background-alt: #f6f8fb;
+    -fx-accent: #1668dc;
+    -fx-default-button: #1668dc;
+    -fx-focus-color: #1668dc;
+    -fx-faint-focus-color: #1668dc33;
+    -fx-dark-text-color: #1b2a41;
+    -fx-mid-text-color: #1b2a41;
+    -fx-light-text-color: #ffffff;
+    -fx-box-border: #d3dbe6;
+    -fx-text-box-border: #d3dbe6;
+    -fx-selection-bar: #1668dc;
+    -fx-selection-bar-non-focused: #e7f0fe;
+    -fx-cell-hover-color: #eef4fd;
+
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+}
+
+.label {
+    -fx-text-fill: -lab-ink;
+}
+
+/* ================================== Przyciski ================================== */
+
+.button {
+    -fx-background-color: -lab-border, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-padding: 6 14 6 14;
+    -fx-text-fill: -lab-ink;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(22, 50, 92, 0.10), 3, 0, 0, 1);
+}
+
+/* najechanie: błękitna ramka i miękka poświata */
+.button:hover {
+    -fx-background-color: -lab-accent, -lab-surface;
+    -fx-text-fill: -lab-accent;
+    -fx-effect: dropshadow(gaussian, rgba(22, 104, 220, 0.32), 9, 0, 0, 2);
+}
+
+/* fokus z klawiatury / po kliknięciu: delikatny pierścień */
+.button:focused {
+    -fx-background-color: -fx-faint-focus-color, -lab-accent, -lab-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 8, 6, 5;
+}
+
+/* wciśnięcie: przycisk "wpada" - lekko maleje, cień przechodzi do środka */
+.button:armed {
+    -fx-background-color: -lab-accent, -lab-accent-tint-strong;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-text-fill: -lab-accent-pressed;
+    -fx-effect: innershadow(gaussian, rgba(15, 79, 178, 0.38), 6, 0, 0, 2);
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+    -fx-translate-y: 1;
+}
+
+.button:disabled {
+    -fx-opacity: 1;
+    -fx-background-color: -lab-border-soft, #f3f5f9;
+    -fx-text-fill: -lab-faint;
+    -fx-effect: null;
+}
+
+/* przycisk domyślny (Zaloguj, Zapisz) - pełny błękit */
+.button:default {
+    -fx-background-color: -lab-accent-pressed, linear-gradient(to bottom, #2473e6, -lab-accent);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-effect: dropshadow(gaussian, rgba(22, 104, 220, 0.30), 5, 0, 0, 1);
+}
+
+.button:default:hover {
+    -fx-background-color: -lab-accent, linear-gradient(to bottom, #4189f5, -lab-accent-hover);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(22, 104, 220, 0.55), 12, 0, 0, 3);
+}
+
+.button:default:focused {
+    -fx-background-color: -fx-faint-focus-color, -lab-accent-pressed, linear-gradient(to bottom, #2473e6, -lab-accent);
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 8, 6, 5;
+}
+
+.button:default:focused:hover {
+    -fx-background-color: -fx-faint-focus-color, -lab-accent, linear-gradient(to bottom, #4189f5, -lab-accent-hover);
+}
+
+.button:default:armed {
+    -fx-background-color: #0b3f91, -lab-accent-pressed;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-text-fill: #dbe8fd;
+    -fx-effect: innershadow(gaussian, rgba(4, 28, 74, 0.55), 7, 0, 0, 2);
+}
+
+.button:default:disabled {
+    -fx-background-color: #a9c5f0, #a9c5f0;
+    -fx-text-fill: white;
+    -fx-effect: null;
+}
+
+/* ============================ Pola tekstowe i hasła ============================ */
+
+.text-input {
+    -fx-background-color: -lab-border, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: -lab-ink;
+    -fx-prompt-text-fill: -lab-faint;
+    -fx-highlight-fill: -lab-accent;
+    -fx-highlight-text-fill: white;
+}
+
+.text-input:hover {
+    -fx-background-color: #9db4d3, -lab-surface;
+}
+
+.text-input:focused {
+    -fx-background-color: -fx-faint-focus-color, -lab-accent, -lab-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 8, 6, 5;
+    -fx-prompt-text-fill: -lab-faint;   /* podpowiedź widoczna także w aktywnym polu */
+}
+
+.text-input:disabled {
+    -fx-opacity: 1;
+    -fx-background-color: -lab-border-soft, #f3f5f9;
+    -fx-text-fill: -lab-faint;
+}
+
+/* pole wielowierszowe (opis usterki) */
+.text-area {
+    -fx-padding: 1;
+    -fx-background-color: -lab-border, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-pref-column-count: 26;
+}
+
+.text-area:hover {
+    -fx-background-color: #9db4d3, -lab-surface;
+}
+
+.text-area:focused {
+    -fx-background-color: -fx-faint-focus-color, -lab-accent, -lab-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 8, 6, 5;
+}
+
+.text-area > .scroll-pane,
+.text-area > .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.text-area .content,
+.text-area:focused .content {
+    -fx-background-color: -lab-surface;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5;
+    -fx-padding: 6 10 6 10;
+}
+
+/* ================================ Listy wyboru ================================= */
+
+.combo-box-base {
+    -fx-background-color: -lab-border, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.combo-box-base:hover {
+    -fx-background-color: #9db4d3, -lab-surface;
+}
+
+.combo-box-base:focused,
+.combo-box-base:showing {
+    -fx-background-color: -fx-faint-focus-color, -lab-accent, -lab-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 8, 6, 5;
+}
+
+.combo-box > .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -lab-ink;
+    -fx-padding: 6 6 6 10;
+}
+
+.combo-box-base > .arrow-button,
+.combo-box-base:hover > .arrow-button,
+.combo-box-base:focused > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0 11 0 6;
+}
+
+.combo-box-base > .arrow-button > .arrow {
+    -fx-background-color: -lab-muted;
+    -fx-background-insets: 0;
+}
+
+.combo-box-base:hover > .arrow-button > .arrow,
+.combo-box-base:showing > .arrow-button > .arrow {
+    -fx-background-color: -lab-accent;
+}
+
+.combo-box-popup > .list-view {
+    -fx-background-color: -lab-border, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(22, 50, 92, 0.22), 12, 0, 0, 4);
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4;
+    -fx-text-fill: -lab-ink;
+    -fx-padding: 6 10 6 10;
+    -fx-wrap-text: false;
+    -fx-pref-width: -1;
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover {
+    -fx-background-color: -lab-accent-tint;
+    -fx-text-fill: -lab-accent-pressed;
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+    -fx-background-color: -lab-accent;
+    -fx-text-fill: white;
+}
+
+/* ==================================== Listy ==================================== */
+
+.list-view {
+    -fx-background-color: -lab-border-soft, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 7, 6;
+    -fx-padding: 4;
+}
+
+.list-view:focused {
+    -fx-background-color: -lab-accent, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 7, 6;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4;
+    -fx-text-fill: -lab-ink;
+    -fx-padding: 6 10 6 10;
+    /* długie nazwy zawijają się do kolejnego wiersza zamiast wymuszać przewijanie w poziomie */
+    -fx-wrap-text: true;
+    -fx-pref-width: 60;
+}
+
+/* delikatne paski co drugi wiersz - tylko dla wierszy z danymi */
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:odd {
+    -fx-background-color: -lab-surface-alt;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover {
+    -fx-background-color: -lab-accent-tint;
+    -fx-text-fill: -lab-accent-pressed;
+    -fx-cursor: hand;
+}
+
+/* zaznaczenie w liście bez fokusu: jasny błękit z pionowym znacznikiem */
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+    -fx-background-color: -lab-accent, -lab-accent-tint-strong;
+    -fx-background-insets: 0, 0 0 0 3;
+    -fx-background-radius: 4, 0 4 4 0;
+    -fx-text-fill: -lab-accent-pressed;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+/* zaznaczenie w aktywnej liście: pełny błękit */
+.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.list-view:focused > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+    -fx-background-color: -lab-accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+    -fx-text-fill: white;
+}
+
+/* ============================== Paski przewijania ============================== */
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-padding: 2;
+}
+
+.scroll-bar > .track,
+.scroll-bar > .track-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar > .thumb {
+    -fx-background-color: #c2ccd9;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar > .thumb:hover {
+    -fx-background-color: #9fb0c6;
+}
+
+.scroll-bar > .thumb:pressed {
+    -fx-background-color: -lab-accent;
+}
+
+.scroll-bar > .increment-button,
+.scroll-bar > .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar:vertical > .increment-button > .increment-arrow,
+.scroll-bar:vertical > .decrement-button > .decrement-arrow {
+    -fx-shape: null;
+    -fx-padding: 0 4 0 4;
+}
+
+.scroll-bar:horizontal > .increment-button > .increment-arrow,
+.scroll-bar:horizontal > .decrement-button > .decrement-arrow {
+    -fx-shape: null;
+    -fx-padding: 4 0 4 0;
+}
+
+.list-view > .virtual-flow > .corner,
+.text-area > .scroll-pane > .corner {
+    -fx-background-color: transparent;
+}
+
+/* ============================== Ekran logowania ================================ */
+
+/* Biała karta z błękitnym paskiem u góry, narysowana warstwami tła
+   (wyśrodkowana dla okna 800x600). */
+LoginView {
+    -fx-background-color:
+        -lab-bg,
+        rgba(22, 50, 92, 0.04),
+        rgba(22, 50, 92, 0.05),
+        -lab-border,
+        -lab-accent,
+        -lab-surface;
+    -fx-background-insets:
+        0,
+        149 228 145 228,
+        150 229 147 229,
+        150 230 150 230,
+        151 231 151 231,
+        155 231 151 231;
+    -fx-background-radius: 0, 12, 11, 10, 9, 0 0 9 9;
+    -fx-spacing: 12;
+}
+
+/* tytuł "Logowanie" */
+LoginView > .label {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 18px;
+    -fx-text-fill: -lab-ink;
+    -fx-padding: 0 0 4 0;
+}
+
+/* komunikat błędu pod przyciskiem */
+LoginView > .label.error {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-text-fill: -lab-danger;
+    -fx-padding: 0;
+}
+
+LoginView > .text-input {
+    -fx-max-width: 260;
+    -fx-padding: 9 12 9 12;
+    -fx-font-size: 14px;
+}
+
+LoginView > .button {
+    -fx-pref-width: 260;
+    -fx-padding: 9 14 9 14;
+    -fx-font-size: 14px;
+}
+
+/* ================================ Widok główny ================================= */
+
+/* Górny pasek: biała wstęga z błękitną linią, narysowana w tle widoku
+   (wysokość paska jest stała, więc granice podane są w pikselach). */
+MainView {
+    -fx-padding: 3 14 6 14;
+    -fx-background-color:
+        linear-gradient(from 0px 0px to 0px 52px,
+            -lab-accent 0%, -lab-accent 5.77%,
+            -lab-surface 5.77%, -lab-surface 98.07%,
+            -lab-border 98.07%, -lab-border 99.9%,
+            -lab-bg 100%);
+}
+
+/* górny pasek i rząd trzech kolumn są dziećmi tego samego typu */
+MainView > HBox {
+    -fx-padding: 8 0 2 0;
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+/* "Zalogowano jako: ..." - w razie potrzeby łamie się na dwa wiersze */
+MainView > HBox > .label {
+    -fx-font-size: 11px;
+    -fx-text-fill: -lab-muted;
+    -fx-wrap-text: true;
+    -fx-min-width: 150;
+    -fx-pref-width: 150;
+    -fx-max-width: 150;
+    -fx-min-height: 32;
+    -fx-pref-height: 32;
+    -fx-max-height: 32;
+    -fx-line-spacing: -1;
+}
+
+MainView > HBox > .text-field {
+    -fx-pref-width: 120;
+    -fx-min-width: 120;
+    -fx-font-size: 12px;
+    -fx-padding: 6 9 6 9;
+}
+
+MainView > HBox > .button {
+    -fx-font-size: 12px;
+    -fx-padding: 6 9 6 9;
+}
+
+/* kolumny Sale / Stanowiska / Sprzęt jako białe karty */
+MainView > HBox > VBox {
+    -fx-background-color: rgba(22, 50, 92, 0.05), -lab-border, -lab-surface;
+    -fx-background-insets: 1 -1 -2 -1, 0, 1;
+    -fx-background-radius: 11, 9, 8;
+    -fx-padding: 12 12 12 12;
+    -fx-spacing: 10;
+}
+
+/* tytuł kolumny z błękitnym znacznikiem */
+MainView > HBox > VBox > .label {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-text-fill: -lab-ink;
+    -fx-border-color: transparent transparent transparent -lab-accent;
+    -fx-border-width: 0 0 0 3;
+    -fx-padding: 0 0 1 8;
+}
+
+/* Bardzo duży rozmiar preferowany: układ ściska listy po równo,
+   dzięki czemu trzy kolumny zawsze wypełniają całe okno. */
+MainView > HBox > VBox > .list-view {
+    -fx-pref-width: 3000;
+    -fx-pref-height: 3000;
+}
+
+/* rząd przycisków pod listą */
+MainView > HBox > VBox > HBox {
+    -fx-spacing: 8;
+    -fx-padding: 1 0 1 0;
+}
+
+/* dolny wiersz komunikatów */
+MainView > .label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -lab-muted;
+    -fx-padding: 0 2 0 2;
+    -fx-min-height: 18;
+}
+
+/* =============================== Okna dialogowe ================================ */
+
+.dialog-pane {
+    -fx-background-color: -lab-surface;
+    -fx-padding: 0;
+}
+
+.dialog-pane > .content {
+    -fx-padding: 20 22 18 22;
+}
+
+/* stopka z przyciskami */
+.dialog-pane > .button-bar > .container {
+    -fx-background-color: -lab-border-soft, -lab-surface-alt;
+    -fx-background-insets: 0, 1 0 0 0;
+    -fx-padding: 12 18 12 18;
+}
+
+.dialog-pane > .button-bar > .container .button {
+    -fx-padding: 6 18 6 18;
+}
+
+/* formularze: etykiety pól */
+.dialog-pane GridPane {
+    -fx-hgap: 14;
+    -fx-vgap: 12;
+}
+
+.dialog-pane GridPane > .label {
+    -fx-text-fill: -lab-muted;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.dialog-pane GridPane > .text-field {
+    -fx-pref-column-count: 20;
+}
+
+.dialog-pane GridPane > .combo-box {
+    -fx-max-width: 10000;
+}
+
+/* okna z listą (zgłoszenia, użytkownicy) */
+.dialog-pane > .content > .label {
+    -fx-text-fill: -lab-muted;
+    -fx-font-size: 12px;
+}
+
+.dialog-pane > .content > .list-view {
+    -fx-pref-height: 300;
+    -fx-min-width: 300;
+}
+
+/* komunikat (Alert) */
+.dialog-pane > .content.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -lab-ink;
+    -fx-padding: 24 24 22 18;
+}
+
+.dialog-pane:no-header .graphic-container {
+    -fx-padding: 18 0 14 22;
+}
+
+.dialog-pane > .header-panel {
+    -fx-background-color: -lab-border-soft, -lab-surface;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 16 22 16 22;
+}
+
+.dialog-pane > .header-panel > .label {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 15px;
+    -fx-text-fill: -lab-ink;
+}
+
+/* potwierdzenie usunięcia: przycisk akcji w kolorze ostrzegawczym */
+.alert.confirmation .button:default {
+    -fx-background-color: -lab-danger-pressed, -lab-danger;
+    -fx-effect: dropshadow(gaussian, rgba(207, 51, 65, 0.28), 5, 0, 0, 1);
+}
+
+.alert.confirmation .button:default:hover {
+    -fx-background-color: -lab-danger, -lab-danger-hover;
+    -fx-effect: dropshadow(gaussian, rgba(207, 51, 65, 0.50), 12, 0, 0, 3);
+}
+
+.alert.confirmation .button:default:focused {
+    -fx-background-color: rgba(207, 51, 65, 0.22), -lab-danger-pressed, -lab-danger;
+}
+
+.alert.confirmation .button:default:armed {
+    -fx-background-color: #861b25, -lab-danger-pressed;
+    -fx-text-fill: #fbe1e3;
+    -fx-effect: innershadow(gaussian, rgba(70, 8, 14, 0.55), 7, 0, 0, 2);
+}
+
+/* ========================= Menu kontekstowe i podpowiedzi ====================== */
+
+.context-menu {
+    -fx-background-color: -lab-border, -lab-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(22, 50, 92, 0.22), 12, 0, 0, 4);
+}
+
+.menu-item {
+    -fx-background-radius: 4;
+    -fx-padding: 5 12 5 12;
+}
+
+.menu-item:focused {
+    -fx-background-color: -lab-accent;
+}
+
+.menu-item:focused > .label {
+    -fx-text-fill: white;
+}
+
+.tooltip {
+    -fx-background-color: -lab-ink;
+    -fx-background-radius: 5;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 5 9 5 9;
+}

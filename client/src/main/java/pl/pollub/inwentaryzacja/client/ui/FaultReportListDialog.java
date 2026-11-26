@@ -32,6 +32,7 @@ public class FaultReportListDialog extends Dialog<Void> {
 
         setTitle("Otwarte zgłoszenia usterek");
         getDialogPane().setContent(new VBox(SPACING, reportList, closeReportButton, messageLabel));
+        getDialogPane().getStylesheets().add(Theme.STYLESHEET);
         getDialogPane().getButtonTypes().add(new ButtonType("Wróć", ButtonBar.ButtonData.CANCEL_CLOSE));
 
         showOpenReports();

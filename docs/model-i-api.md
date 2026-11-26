@@ -17,13 +17,13 @@
 | `POST /api/auth/login` - token JWT + rola                                  | wszyscy |
 | `GET /api/rooms`, `/api/workstations`, `/api/equipment`                    | wszyscy |
 | `GET /api/equipment?microcontroller=…`                                     | wszyscy |
-| `POST /api/workstations`, `PUT /api/workstations/{id}`                     | `LECTURER` |
+| `POST /api/workstations`, `PUT/DELETE /api/workstations/{id}`              | `LECTURER` |
 | `POST /api/equipment`, `PUT/DELETE /api/equipment/{id}`                    | `LECTURER` |
-| `POST /api/rooms`                                                          | `ADMIN` |
+| `POST /api/rooms`, `DELETE /api/rooms/{id}`                                | `ADMIN` |
 | `POST /api/fault-reports`                                                  | `STUDENT` |
 | `GET /api/fault-reports?status=OPEN`, `PUT /api/fault-reports/{id}`        | `LECTURER` |
-| `GET/POST/PUT /api/users`                                                  | `ADMIN` |
-| `GET /api/inventory/export`, `POST /api/inventory/import`                  | `LECTURER` |
+| `GET/POST/PUT /api/users`, `DELETE /api/users/{id}`                       | `ADMIN` |
+| `GET /api/inventory/export`, `POST /api/inventory/import`                  | `LECTURER`, `ADMIN` |
 
 ## Logowanie
 
@@ -64,13 +64,14 @@ ten sam format co w eksporcie. Brak lub zły token: `401`.
 |---|---|
 | `POST /api/workstations` | stanowisko, `id` = `null` |
 | `PUT /api/workstations/{id}` | całe stanowisko |
+| `DELETE /api/workstations/{id}` | brak; tylko stanowisko bez sprzętu i zgłoszeń, inaczej `409` |
 | `POST /api/equipment` | sprzęt, `id` = `null` |
 | `PUT /api/equipment/{id}` | cały sprzęt |
 | `DELETE /api/equipment/{id}` | brak |
 
 Treść w tym samym formacie co przy przeglądaniu (relacje jako id). Sukces = dowolny kod `2xx`
 (np. `201` z zapisanym obiektem, `204` po usunięciu) — klient po zapisie pobiera listę od nowa.
-Inna rola niż `LECTURER`: `403`. Stanowisk się nie usuwa.
+Inna rola niż `LECTURER`: `403`.
 
 ## Zgłoszenia usterek
 
@@ -93,9 +94,11 @@ Odpowiedź `GET` — z numerami sali i stanowiska oraz loginem zgłaszającego (
 | Żądanie | Treść żądania |
 |---|---|
 | `POST /api/rooms` | `{"number": "E204", "description": "Pracownia systemów wbudowanych"}` |
+| `DELETE /api/rooms/{id}` | brak; tylko sala bez stanowisk, inaczej `409` |
 | `GET /api/users` | brak; odpowiedź: `[{"id": 1, "login": "admin", "role": "ADMIN"}]` |
 | `POST /api/users` | `{"login": "jkowalski", "password": "haslo123", "role": "STUDENT"}` |
 | `PUT /api/users/{id}` | jak przy `POST`; `"password": null` = hasło bez zmian |
+| `DELETE /api/users/{id}` | brak; nie własne konto, nie ostatni administrator i nie konto ze zgłoszeniami usterek, inaczej `409` |
 
 Zajęty numer sali lub login: `409`. Ostatniemu administratorowi nie można odebrać roli (`409`).
 Inna rola niż `ADMIN`: `403`.

@@ -22,13 +22,13 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
-    @Operation(summary = "Eksport inwentarza (LECTURER)")
+    @Operation(summary = "Eksport inwentarza (LECTURER, ADMIN)")
     @GetMapping("/export")
     public InventoryDto export() {
         return inventoryService.export();
     }
 
-    @Operation(summary = "Import inwentarza jako nowych rekordów (LECTURER)")
+    @Operation(summary = "Import inwentarza: zastępuje sale, stanowiska, sprzęt i zgłoszenia (LECTURER, ADMIN)")
     @PostMapping("/import")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void importInventory(@Valid @RequestBody InventoryDto inventory) {

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,5 +46,12 @@ public class WorkstationController {
     @PutMapping("/{id}")
     public WorkstationDto update(@PathVariable Long id, @Valid @RequestBody WorkstationDto workstation) {
         return workstationService.update(id, workstation);
+    }
+
+    @Operation(summary = "Usunięcie stanowiska bez sprzętu i zgłoszeń (LECTURER)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        workstationService.delete(id);
     }
 }
