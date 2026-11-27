@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Uprawnienia według tabeli endpointów w docs/model-i-api.md.
+ * Uprawnienia według tabeli ról w README.md.
  * Brak lub zły token daje 401, zła rola 403.
  */
 @Configuration

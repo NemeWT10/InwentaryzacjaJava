@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Zapis sprzętu w formacie z docs/model-i-api.md, sekcja „Zapis (wykładowca)”. */
+/** Zapis sprzętu przez wykładowcę. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

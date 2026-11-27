@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Zgłoszenia usterek w formacie z docs/model-i-api.md; konto „student” pochodzi z kont startowych. */
+/** Zgłoszenia usterek; konto „student” pochodzi z kont startowych. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

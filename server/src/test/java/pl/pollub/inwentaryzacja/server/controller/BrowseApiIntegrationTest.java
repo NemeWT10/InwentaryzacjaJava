@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Sprawdza format JSON z docs/model-i-api.md, sekcja „Przeglądanie”. */
+/** Sprawdza format JSON przy przeglądaniu (powiązania jako id). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

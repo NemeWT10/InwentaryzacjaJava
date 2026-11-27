@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "System inwentaryzacji płytek ewaluacyjnych – REST API", version = "1.0",
+        info = @Info(title = "Inwentaryzacja sprzętu laboratoriów systemów wbudowanych – REST API", version = "1.0",
                 description = "Ewidencja sprzętu pracowni systemów wbudowanych z podziałem na role "
                         + "STUDENT, LECTURER i ADMIN. Brak lub zły token: 401, zła rola: 403."),
         security = @SecurityRequirement(name = OpenApiConfig.BEARER))
